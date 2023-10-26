@@ -1,0 +1,16 @@
+.wrapper {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  z-index: 10;
+  transform: translateX(-50%);
+  max-width: calc(100vw - 30px);
+  width: 700px;
+}
+
+@media (max-width: 899px) {
+  .wrapper {
+    max-width: calc(100vw - 20px);
+    bottom: 10px;
+  }
+}
