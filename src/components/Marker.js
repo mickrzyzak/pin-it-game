@@ -33,7 +33,8 @@ function Marker({ city, mapDimensions }) {
       style={{
         top: position.y,
         left: position.x,
-        pointerEvents: !city.correct ? "all" : "none",
+        pointerEvents:
+          !city.correct && app.status === "playing" ? "all" : "none",
       }}
       onClick={handleOnClick}
     >
@@ -43,7 +44,7 @@ function Marker({ city, mapDimensions }) {
         alt={`Pin ${city.name}`}
         draggable={false}
       />
-      {city.correct && (
+      {(city.correct || app.status === "lost") && (
         <div className={styles.label}>
           <Paper sx={{ px: 0.5, py: 0.25 }}>
             <Typography

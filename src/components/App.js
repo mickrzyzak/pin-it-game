@@ -5,20 +5,39 @@ import citiesData from "../data/cities.json";
 import Map from "./Map";
 import Interface from "./Interface";
 
-const gameSettings = {
+export const gameSettings = {
   cities: 9,
   time: 60,
   mistakes: 10,
 };
 
 const initialState = {
+  status: "idle",
   quality: window.innerWidth >= 600,
   dragging: false,
+  modal: null,
   cities: [],
   activeCity: null,
   time: gameSettings.time,
   mistakes: gameSettings.mistakes,
 };
+
+function drawNewCities(cities) {
+  if (cities > 30) throw Error("drawNewCities: Too many cities.");
+  let newCitites = [];
+  for (let i = 0; i < cities; i++) {
+    let randomId = null;
+    do {
+      randomId = Math.floor(Math.random() * citiesData.length);
+    } while (!newCitySuitable(newCitites, randomId));
+    newCitites.push({
+      ...citiesData[randomId],
+      correct: false,
+      incorrect: false,
+    });
+  }
+  return newCitites;
+}
 
 function newCitySuitable(cities, newCityId) {
   let newCity = citiesData[newCityId];
@@ -39,6 +58,26 @@ function newCitySuitable(cities, newCityId) {
 
 function appReducer(state, action) {
   switch (action.type) {
+    case "start_game":
+      return {
+        ...state,
+        status: "playing",
+        cities: drawNewCities(gameSettings.cities),
+        activeCity: null,
+        time: gameSettings.time,
+        mistakes: gameSettings.mistakes,
+      };
+    case "win_game":
+      return {
+        ...state,
+        status: "won",
+      };
+    case "lose_game":
+      return {
+        ...state,
+        status: "lost",
+        activeCity: null,
+      };
     case "set_quality":
       localStorage.setItem("quality", action.payload);
       return {
@@ -49,24 +88,6 @@ function appReducer(state, action) {
       return {
         ...state,
         dragging: action.payload,
-      };
-    case "draw_new_cities":
-      if (action.payload > 30) throw Error("appReducer: Too many cities.");
-      let newCitites = [];
-      for (let i = 0; i < action.payload; i++) {
-        let randomId = null;
-        do {
-          randomId = Math.floor(Math.random() * citiesData.length);
-        } while (!newCitySuitable(newCitites, randomId));
-        newCitites.push({
-          ...citiesData[randomId],
-          correct: false,
-          incorrect: false,
-        });
-      }
-      return {
-        ...state,
-        cities: newCitites,
       };
     case "select_active_city":
       return {
@@ -93,14 +114,15 @@ function appReducer(state, action) {
           city.name === action.payload ? { ...city, incorrect: true } : city
         ),
       };
-    case "add_mistake":
-      let newMistakes = state.mistakes - 1;
-      if (newMistakes <= 0) {
-        newMistakes = 0;
-      }
+    case "subtract_mistake":
       return {
         ...state,
-        mistakes: newMistakes,
+        mistakes: state.mistakes - 1,
+      };
+    case "subtract_time":
+      return {
+        ...state,
+        time: state.time - 1,
       };
     default:
       throw Error("appReducer: Unknown action type.");
@@ -112,8 +134,40 @@ function App() {
 
   useEffect(() => {
     loadLocalStorageData();
-    dispatch({ type: "draw_new_cities", payload: gameSettings.cities });
   }, []);
+
+  useEffect(() => {
+    let clockInterval;
+    if (app.status === "playing") {
+      clockInterval = setInterval(
+        () => dispatch({ type: "subtract_time" }),
+        1000
+      );
+    }
+
+    return () => clearInterval(clockInterval);
+  }, [app.status]);
+
+  useEffect(() => {
+    if (
+      app.status === "playing" &&
+      app.cities.findIndex((city) => !city.correct) === -1
+    ) {
+      dispatch({ type: "win_game" });
+    }
+  }, [app.status, app.cities]);
+
+  useEffect(() => {
+    if (app.time === 0) {
+      dispatch({ type: "lose_game" });
+    }
+  }, [app.time]);
+
+  useEffect(() => {
+    if (app.mistakes === 0) {
+      dispatch({ type: "lose_game" });
+    }
+  }, [app.mistakes]);
 
   const loadLocalStorageData = () => {
     let quality = localStorage.getItem("quality");

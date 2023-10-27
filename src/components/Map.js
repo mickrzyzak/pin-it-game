@@ -61,6 +61,7 @@ function Map() {
   };
 
   const handleOnMoveStart = (e) => {
+    if (!mapBiggerThanWindow().x && !mapBiggerThanWindow().y) return;
     dispatch({ type: "set_dragging", payload: true });
     setMoveStartPosition({
       x: (e.touches ? e.touches[0].clientX : e.clientX) + position.x,

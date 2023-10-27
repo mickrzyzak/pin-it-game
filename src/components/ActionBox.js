@@ -4,7 +4,11 @@ import { Button, Paper, Grid, Typography } from "@mui/material";
 
 function Tip({ text }) {
   return (
-    <Typography variant="subtitle1" align="center" sx={{ mb: 1 }}>
+    <Typography
+      variant="subtitle1"
+      align="center"
+      sx={{ lineHeight: 1.25, mb: 1.25 }}
+    >
       {text}
     </Typography>
   );
@@ -46,13 +50,29 @@ function Dashboard({ app }) {
   );
 }
 
+function StartGame({ children, color, dispatch }) {
+  const handleOnClick = () => dispatch({ type: "start_game" });
+
+  return (
+    <Button
+      variant="contained"
+      color={color}
+      size="large"
+      onClick={handleOnClick}
+      sx={{ display: "block", mx: "auto", mt: 1.5, width: 1 }}
+    >
+      {children}
+    </Button>
+  );
+}
+
 function CityList({ app, dispatch }) {
   const handleOnClick = (e) => {
     if (e.target.value === app.activeCity) {
       dispatch({ type: "set_correct_city", payload: e.target.value });
     } else {
       dispatch({ type: "set_incorrect_city", payload: e.target.value });
-      dispatch({ type: "add_mistake" });
+      dispatch({ type: "subtract_mistake" });
     }
   };
 
@@ -72,6 +92,7 @@ function CityList({ app, dispatch }) {
               width: 1,
               height: 1,
               lineHeight: 1,
+              wordBreak: "break-word",
               pointerEvents: city.correct || city.incorrect ? "none" : "all",
             }}
           >
@@ -89,9 +110,38 @@ function ActionBox() {
   return (
     <div className={styles.wrapper} style={{ opacity: app.dragging ? 0.5 : 1 }}>
       <Paper sx={{ p: 1.5, borderColor: "info.main" }}>
-        {app.activeCity === null && <Tip text="📌️ Select a pin on the map." />}
+        {app.status === "idle" && (
+          <Tip text="🎓️ Assign the drawn cities to the markers." />
+        )}
+        {app.status === "playing" && app.activeCity === null && (
+          <Tip text="📌️ Select a pin on the map." />
+        )}
+        {app.status === "playing" && app.activeCity !== null && (
+          <Tip text="📫️ Select the correct city." />
+        )}
+        {app.status === "won" && (
+          <Tip text="🎉️ You won the game. Congratulations!" />
+        )}
+        {app.status === "lost" && (
+          <Tip text="🪦️ You lost the game. Try again!" />
+        )}
         <Dashboard app={app} />
-        <CityList app={app} dispatch={dispatch} />
+        {app.status === "idle" && (
+          <StartGame color="success" dispatch={dispatch}>
+            START THE GAME
+          </StartGame>
+        )}
+        {app.status !== "idle" && <CityList app={app} dispatch={dispatch} />}
+        {app.status === "won" && (
+          <StartGame color="info" dispatch={dispatch}>
+            RESTART THE GAME
+          </StartGame>
+        )}
+        {app.status === "lost" && (
+          <StartGame color="error" dispatch={dispatch}>
+            RESTART THE GAME
+          </StartGame>
+        )}
       </Paper>
     </div>
   );
