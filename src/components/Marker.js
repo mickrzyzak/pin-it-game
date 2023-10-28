@@ -3,23 +3,10 @@ import { useApp } from "../contexts/AppContext";
 import { Paper, Typography } from "@mui/material";
 import pinImg from "../assets/pushpin.svg";
 
-function letlngToPx(lat, lng, mapDimensions) {
-  // Mercator projection
-  let x = (lng + 180) * (mapDimensions.x / 360);
-  let latRad = (lat * Math.PI) / 180;
-  let n = Math.log(Math.tan(Math.PI / 4 + latRad / 2));
-  let y = mapDimensions.y / 2 - (mapDimensions.x * n) / (2 * Math.PI);
-  // Map offset
-  x += -57;
-  y += 235;
-  return { x, y };
-}
-
 function Marker({ city, mapDimensions }) {
   const { app, dispatch } = useApp();
-  let position = letlngToPx(city.lat, city.lng, mapDimensions);
 
-  const handleOnClick = () => {
+  const handleClick = () => {
     if (!city.correct) {
       dispatch({ type: "select_active_city", payload: city.name });
     }
@@ -31,12 +18,12 @@ function Marker({ city, mapDimensions }) {
         app.activeCity === city.name ? styles.active : ""
       }`}
       style={{
-        top: position.y,
-        left: position.x,
+        top: city.y,
+        left: city.x,
         pointerEvents:
           !city.correct && app.status === "playing" ? "all" : "none",
       }}
-      onClick={handleOnClick}
+      onClick={handleClick}
     >
       <img
         className={styles.markerImg}

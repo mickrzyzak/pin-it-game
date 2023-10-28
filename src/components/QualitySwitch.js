@@ -5,7 +5,7 @@ import { Button, ButtonGroup, Paper } from "@mui/material";
 function QualitySwitch() {
   const { app, dispatch } = useApp();
 
-  const handleOnCLick = (e) => {
+  const handleCLick = (e) => {
     dispatch({ type: "set_quality", payload: parseInt(e.target.value) });
   };
 
@@ -16,7 +16,7 @@ function QualitySwitch() {
           <Button
             variant={app.quality ? "contained" : "text"}
             disableElevation={true}
-            onClick={handleOnCLick}
+            onClick={handleCLick}
             value={1}
             sx={{ px: 1.5 }}
           >
@@ -25,7 +25,7 @@ function QualitySwitch() {
           <Button
             variant={!app.quality ? "contained" : "text"}
             disableElevation={true}
-            onClick={handleOnCLick}
+            onClick={handleCLick}
             value={0}
             sx={{ px: 1.5 }}
           >

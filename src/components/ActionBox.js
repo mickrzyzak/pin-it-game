@@ -51,14 +51,14 @@ function Dashboard({ app }) {
 }
 
 function StartGame({ children, color, dispatch }) {
-  const handleOnClick = () => dispatch({ type: "start_game" });
+  const handleClick = () => dispatch({ type: "start_game" });
 
   return (
     <Button
       variant="contained"
       color={color}
       size="large"
-      onClick={handleOnClick}
+      onClick={handleClick}
       sx={{ display: "block", mx: "auto", mt: 1.5, width: 1 }}
     >
       {children}
@@ -67,7 +67,7 @@ function StartGame({ children, color, dispatch }) {
 }
 
 function CityList({ app, dispatch }) {
-  const handleOnClick = (e) => {
+  const handleClick = (e) => {
     if (e.target.value === app.activeCity) {
       dispatch({ type: "set_correct_city", payload: e.target.value });
     } else {
@@ -85,7 +85,7 @@ function CityList({ app, dispatch }) {
             size="small"
             color={city.correct ? "success" : city.incorrect ? "error" : "info"}
             disabled={app.activeCity === null && !city.correct}
-            onClick={handleOnClick}
+            onClick={handleClick}
             value={city.name}
             sx={{
               p: 1.25,
