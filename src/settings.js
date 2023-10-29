@@ -9,4 +9,8 @@ const displaySettings = {
   playgroundDimensions: { x: 1920, y: 1241 + 300 },
 };
 
-export { gameSettings, displaySettings };
+const projectSettings = {
+  gitHubUrl: "https://github.com/mickrzyzak/pin-it-game",
+};
+
+export { gameSettings, displaySettings, projectSettings };

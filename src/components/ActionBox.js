@@ -1,4 +1,5 @@
 import styles from "./ActionBox.module.css";
+import { useState, useEffect } from "react";
 import { useApp } from "../contexts/AppContext";
 import { Button, Paper, Grid, Typography } from "@mui/material";
 
@@ -50,8 +51,8 @@ function Dashboard({ app }) {
   );
 }
 
-function StartGame({ children, color, dispatch }) {
-  const handleClick = () => dispatch({ type: "start_game" });
+function ActionButton({ action, children, color, dispatch }) {
+  const handleClick = () => dispatch(action);
 
   return (
     <Button
@@ -104,11 +105,61 @@ function CityList({ app, dispatch }) {
   );
 }
 
+function MarkerSelectionHelper({ app, dispatch }) {
+  const [unknownCities, setUnknownCities] = useState([]);
+
+  useEffect(() => {
+    setUnknownCities(app.cities.filter((city) => !city.correct));
+  }, [app.cities]);
+
+  const handleClick = () => {
+    let cityId = 0;
+    if (app.activeCity !== null) {
+      let activeCityId = unknownCities.findIndex(
+        (city) => city.name === app.activeCity
+      );
+      cityId = activeCityId < unknownCities.length - 1 ? activeCityId + 1 : 0;
+    }
+    dispatch({
+      type: "select_active_city",
+      payload: unknownCities[cityId].name,
+    });
+    dispatch({
+      type: "set_map_move_to",
+      payload: { x: unknownCities[cityId].x, y: unknownCities[cityId].y },
+    });
+  };
+
+  return (
+    app.status === "playing" && (
+      <Paper sx={{ display: "inline-block", mb: 1 }}>
+        <Button
+          variant="text"
+          color="warning"
+          size="small"
+          disableElevation={false}
+          onClick={handleClick}
+          sx={{ px: 1.25, py: 0.25 }}
+        >
+          {app.activeCity === null
+            ? "Select a marker"
+            : "Select the next marker"}
+        </Button>
+      </Paper>
+    )
+  );
+}
+
 function ActionBox() {
   const { app, dispatch } = useApp();
 
   return (
-    <div className={styles.wrapper} style={{ opacity: app.dragging ? 0.5 : 1 }}>
+    <div
+      id="action-box"
+      className={styles.wrapper}
+      style={{ opacity: app.dragging ? 0.5 : 1 }}
+    >
+      <MarkerSelectionHelper app={app} dispatch={dispatch} />
       <Paper sx={{ p: 1.5, borderColor: "info.main" }}>
         {app.status === "idle" && (
           <Tip text="🎓️ Assign the drawn cities to the markers." />
@@ -127,20 +178,32 @@ function ActionBox() {
         )}
         <Dashboard app={app} />
         {app.status === "idle" && (
-          <StartGame color="success" dispatch={dispatch}>
+          <ActionButton
+            action={{ type: "start_game" }}
+            color="success"
+            dispatch={dispatch}
+          >
             START THE GAME
-          </StartGame>
+          </ActionButton>
         )}
         {app.status !== "idle" && <CityList app={app} dispatch={dispatch} />}
         {app.status === "won" && (
-          <StartGame color="info" dispatch={dispatch}>
+          <ActionButton
+            action={{ type: "restart_game" }}
+            color="info"
+            dispatch={dispatch}
+          >
             RESTART THE GAME
-          </StartGame>
+          </ActionButton>
         )}
         {app.status === "lost" && (
-          <StartGame color="error" dispatch={dispatch}>
+          <ActionButton
+            action={{ type: "restart_game" }}
+            color="error"
+            dispatch={dispatch}
+          >
             RESTART THE GAME
-          </StartGame>
+          </ActionButton>
         )}
       </Paper>
     </div>

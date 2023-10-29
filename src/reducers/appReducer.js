@@ -6,6 +6,7 @@ const initialState = {
   status: "idle",
   quality: window.innerWidth >= 900,
   dragging: false,
+  mapMoveTo: null,
   modal: null,
   cities: [],
   activeCity: null,
@@ -25,6 +26,16 @@ function reducer(state, action) {
         time: gameSettings.time,
         mistakes: gameSettings.mistakes,
       };
+    case "restart_game":
+      return {
+        ...state,
+        status: "idle",
+        modal: null,
+        cities: [],
+        activeCity: null,
+        time: gameSettings.time,
+        mistakes: gameSettings.mistakes,
+      };
     case "win_game":
       return {
         ...state,
@@ -38,11 +49,11 @@ function reducer(state, action) {
             .join("")
             .slice(0, -2)}</strong> and <b>${
             state.cities[state.cities.length - 1].name
-          }</b> are located. It took you ${
+          }</b> are located. It took you <strong>${
             gameSettings.time - state.time
-          } seconds to win and you made ${
+          } seconds</strong> to win and you made <strong>${
             gameSettings.mistakes - state.mistakes
-          } mistakes.`,
+          } mistakes</strong>.`,
           actions: [
             {
               text: "Okay",
@@ -78,6 +89,11 @@ function reducer(state, action) {
       return {
         ...state,
         dragging: action.payload,
+      };
+    case "set_map_move_to":
+      return {
+        ...state,
+        mapMoveTo: action.payload,
       };
     case "select_active_city":
       return {

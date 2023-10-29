@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useApp } from "../contexts/AppContext";
 import { displaySettings } from "../settings";
 import mapImgSvg from "../assets/map.svg";
-import mapImgPng from "../assets/map.png";
+import mapImgPng from "../assets/map_optimized.png";
 import Marker from "./Marker";
 
 function mapBiggerThanWindow() {
@@ -18,17 +18,28 @@ function Map() {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [moveStartPosition, setMoveStartPosition] = useState(null);
 
+  // Center the map at the beginning
   useEffect(() => {
-    centerMap();
+    mapMoveTo(
+      displaySettings.mapDimensions.x / 2,
+      displaySettings.mapDimensions.y / 2
+    );
   }, []);
 
-  const centerMap = () => {
+  // Move the map position when required
+  useEffect(() => {
+    if (app.mapMoveTo === null) return;
+    mapMoveTo(app.mapMoveTo.x, app.mapMoveTo.y);
+    dispatch({ type: "set_map_move_to", payload: null });
+  }, [app.mapMoveTo, dispatch]);
+
+  const mapMoveTo = (x, y) => {
     setPosition({
-      x: mapBiggerThanWindow().x
-        ? displaySettings.mapDimensions.x / 2 - window.innerWidth / 2
-        : 0,
+      x: mapBiggerThanWindow().x ? x - window.innerWidth / 2 : 0,
       y: mapBiggerThanWindow().y
-        ? displaySettings.mapDimensions.y / 2 - window.innerHeight / 2
+        ? y -
+          window.innerHeight / 2 +
+          document.getElementById("action-box").offsetHeight / 2
         : 0,
     });
   };
