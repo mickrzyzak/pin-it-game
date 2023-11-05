@@ -1,5 +1,5 @@
 import { useReducer } from "react";
-import { gameSettings } from "../settings";
+import { gameSettings, displaySettings } from "../settings";
 import { drawNewCities } from "../functions";
 
 const initialState = {
@@ -20,6 +20,10 @@ function reducer(state, action) {
       return {
         ...state,
         status: "playing",
+        mapMoveTo: {
+          x: displaySettings.mapDimensions.x / 2,
+          y: displaySettings.mapDimensions.y / 2,
+        },
         modal: null,
         cities: drawNewCities(gameSettings.cities),
         activeCity: null,
