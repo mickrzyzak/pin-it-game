@@ -2,7 +2,7 @@
 
 **Pin it!** is a game in which the player must **assign drawn cities to markers** placed on the world map. **Time** is limited and only a few **mistakes** are allowed. Cities are drawn from a list of 1000 records.
 
-The application is build in **React** and uses **Context API** + **Reducer** to manage data flow. UI components come from **MUI**.
+The application is build in **React** and uses **Context API** + **Reducer** to manage data flow. The user interface components come from **MUI**.
 
 ## Explore the game
 
