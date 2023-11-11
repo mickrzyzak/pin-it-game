@@ -34,6 +34,10 @@ function reducer(state, action) {
       return {
         ...state,
         status: "idle",
+        mapMoveTo: {
+          x: displaySettings.mapDimensions.x / 2,
+          y: displaySettings.mapDimensions.y / 2,
+        },
         modal: null,
         cities: [],
         activeCity: null,

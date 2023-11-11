@@ -1,13 +1,14 @@
 import styles from "./ActionBox.module.css";
 import { useState, useEffect } from "react";
 import { useApp } from "../contexts/AppContext";
-import { Button, Paper, Grid, Typography } from "@mui/material";
+import { Button, Paper, Grid, Typography, Link } from "@mui/material";
 
-function Tip({ text }) {
+function Tip({ text, color }) {
   return (
     <Typography
       variant="subtitle1"
       align="center"
+      color={color && "inherit"}
       sx={{ lineHeight: 1.25, mb: 1.25 }}
     >
       {text}
@@ -152,6 +153,20 @@ function MarkerSelectionHelper({ app, dispatch }) {
 
 function ActionBox() {
   const { app, dispatch } = useApp();
+  const [rotateNotification, setRotateNotification] = useState(false);
+  const [rotateNotificationDisabled, setRotateNotificationDisabled] =
+    useState(false);
+
+  // Display a notification when the screen is in landscape mode
+  useEffect(() => {
+    const handleResize = () =>
+      setRotateNotification(
+        window.innerWidth < 900 && window.innerWidth > window.innerHeight
+      );
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  });
 
   return (
     <div
@@ -161,6 +176,21 @@ function ActionBox() {
     >
       <MarkerSelectionHelper app={app} dispatch={dispatch} />
       <Paper sx={{ p: 1.5, borderColor: "info.main" }}>
+        {rotateNotification && !rotateNotificationDisabled && (
+          <Tip
+            text={
+              <>
+                📲️ Rotate the screen.{" "}
+                <Link
+                  variant="subtitle2"
+                  onClick={() => setRotateNotificationDisabled(true)}
+                >
+                  (Hide it, I'm a rebel)
+                </Link>
+              </>
+            }
+          />
+        )}
         {app.status === "idle" && (
           <Tip text="🎓️ Assign the drawn cities to the markers." />
         )}
